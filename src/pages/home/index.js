@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, SafeAreaView, StatusBar, TextInput, Image, FlatList, Modal } from "react-native";
+import React, { useEffect, useState, useRef } from "react";
+import { View, Text, SafeAreaView, StatusBar, TextInput, Image, FlatList, Modal, ToastAndroid } from "react-native";
 import { api } from "../../services/api";
 import { AntDesign } from '@expo/vector-icons';
 import comedyEmoji from '../../assets/comedyEmoji.png'
@@ -12,7 +12,8 @@ import Card from "./card";
 export default function Home() {
 
     const [films, setFilmes] = useState([])
-    const [searchFilm, setSearchFilm] = useState('')
+    const [searchFilmInput, setSearchFilmInput] = useState('')
+    const flatlisRef = useRef()
 
 
     useEffect(() => {
@@ -23,6 +24,14 @@ export default function Home() {
         }
         getFilms()
     }, [])
+    const searchFilm = () => {
+        let filmePesquisado = films.filter(f => f['nome'].includes(searchFilmInput))
+        if (filmePesquisado.length === 0){
+            ToastAndroid.show('Filme não encontrado', ToastAndroid.SHORT)
+            return
+        }
+        flatlisRef.current.scrollToItem({animated: true, item: filmePesquisado[0]})
+    }
     return (
         <View style={styles.conteiner}>
             <StatusBar />
@@ -32,7 +41,14 @@ export default function Home() {
             </View>
             <View style={styles.conteinerInput}>
                 <AntDesign name="search1" size={20} color="#fff" />
-                <TextInput style={styles.input} value={searchFilm} onChangeText={(txt) => setSearchFilm(txt)} placeholder="Procurar filme" placeholderTextColor="#3e424e" />
+                <TextInput 
+                    style={styles.input} 
+                    value={searchFilmInput} 
+                    onChangeText={(txt) => setSearchFilmInput(txt)} 
+                    placeholder="Procurar filme" 
+                    placeholderTextColor="#3e424e"
+                    onEndEditing={searchFilm}
+                    />
             </View>
             <View style={styles.conteinerCategoria}>
                 <View style={styles.conteinerTitulo}>
@@ -60,6 +76,7 @@ export default function Home() {
                     <Text style={styles.verMais}>Ver mais</Text>
                 </View>
                 <FlatList
+                    ref={flatlisRef}
                     data={films}
                     key={(item) => String(item.id)}
                     renderItem={({ item }) => <Card dados={item} />}
