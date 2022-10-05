@@ -8,6 +8,11 @@ export default StyleSheet.create({
         height: '100%',
         padding: 20,
     },
+    loaging:{
+        position: 'absolute',
+        top: '50%',
+        left: '50%'
+    },
     header:{
         flexDirection: 'row',
         justifyContent: 'space-between',
